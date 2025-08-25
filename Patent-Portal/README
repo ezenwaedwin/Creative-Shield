@@ -1,0 +1,197 @@
+# Decentralized IP Protection Registry Smart Contract
+
+A comprehensive blockchain-based intellectual property management system built on the Stacks blockchain that enables secure registration, ownership tracking, licensing, and transfer of digital and traditional IP assets.
+
+## Overview
+
+This smart contract provides a decentralized registry for managing intellectual property rights including patents, trademarks, copyrights, and trade secrets. It features automated expiration management, royalty distribution, and complete ownership tracking with transparent licensing capabilities.
+
+## Features
+
+### Core Functionality
+- **IP Registration**: Register patents, trademarks, copyrights, and trade secrets
+- **Ownership Management**: Transfer ownership with complete audit trail
+- **Licensing System**: Grant and revoke exclusive or non-exclusive licenses
+- **Renewal Management**: Automated expiration tracking with renewal capabilities
+- **Content Protection**: Hash-based duplicate detection and content verification
+
+### Administrative Features
+- **Status Management**: Update IP status (active, expired, suspended, pending)
+- **Emergency Controls**: Emergency suspension capabilities
+- **Fee Management**: Withdraw accumulated registration and renewal fees
+- **Contract Controls**: Pause/unpause contract functionality
+
+## Supported IP Types
+
+| Type | ID | Expiration Period | Description |
+|------|----|--------------------|-------------|
+| Patent | 1 | ~20 years (1,051,200 blocks) | Technical inventions and processes |
+| Trademark | 2 | ~10 years (525,600 blocks) | Brand names, logos, and identifiers |
+| Copyright | 3 | ~70 years (3,679,200 blocks) | Creative works and expressions |
+| Trade Secret | 4 | Indefinite (99,999,999 blocks) | Confidential business information |
+
+## Contract Constants
+
+### Fees and Limits
+- **Registration Fee**: 1 STX (1,000,000 microSTX)
+- **Renewal Discount**: 50% of registration fee
+- **Minimum License Duration**: 1,000 blocks (~1 week)
+- **Maximum Royalty Rate**: 100% (10,000 basis points)
+
+### Status Types
+- **Active** (1): IP is valid and enforceable
+- **Expired** (2): IP has passed its expiration date
+- **Suspended** (3): IP is temporarily suspended
+- **Pending** (4): IP registration is under review
+
+## Core Functions
+
+### Registration
+```clarity
+(register-new-intellectual-property 
+  ip-type 
+  title 
+  description 
+  content-hash)
+```
+Register a new intellectual property with unique content hash verification.
+
+### Ownership Transfer
+```clarity
+(transfer-intellectual-property-ownership 
+  ip-id 
+  new-owner)
+```
+Transfer ownership to another principal with complete audit trail.
+
+### Licensing
+```clarity
+(grant-intellectual-property-license 
+  ip-id 
+  licensee 
+  license-type 
+  duration 
+  royalty-rate)
+```
+Grant exclusive or non-exclusive licenses with customizable terms.
+
+### Renewal
+```clarity
+(renew-intellectual-property-registration ip-id)
+```
+Extend IP protection period with discounted renewal fees.
+
+## Query Functions
+
+### Basic Information
+- `get-intellectual-property-details(ip-id)`: Get complete IP details
+- `get-intellectual-property-current-owner(ip-id)`: Get current owner
+- `get-principal-intellectual-property-count(owner)`: Count IPs owned by principal
+
+### Status Checks
+- `check-intellectual-property-is-currently-active(ip-id)`: Verify active status
+- `check-content-hash-uniqueness(hash)`: Check for duplicate content
+- `get-contract-pause-status()`: Get contract operational status
+
+### License Information
+- `get-intellectual-property-license-details(ip-id, licensee)`: Get license terms
+- `calculate-intellectual-property-renewal-fee(ip-id)`: Calculate renewal cost
+
+### Historical Data
+- `get-intellectual-property-ownership-history(ip-id, sequence)`: Transfer history
+- `get-total-registered-intellectual-properties()`: Total registration count
+
+## Administrative Functions
+
+### Status Management
+```clarity
+(update-intellectual-property-status ip-id new-status)
+```
+Update IP status (admin only).
+
+### Financial Management
+```clarity
+(withdraw-contract-fees amount)
+```
+Withdraw accumulated fees (admin only).
+
+### Emergency Controls
+```clarity
+(emergency-suspend-intellectual-property ip-id)
+(toggle-contract-pause-status)
+```
+Emergency suspension and contract pause controls (admin only).
+
+## Events
+
+The contract emits detailed events for all major operations:
+
+- `intellectual-property-registered`: New IP registration
+- `intellectual-property-ownership-transferred`: Ownership changes
+- `intellectual-property-license-granted`: License grants
+- `intellectual-property-license-revoked`: License revocations
+- `intellectual-property-renewed`: Registration renewals
+- `intellectual-property-status-updated`: Status changes
+- `contract-fees-withdrawn`: Fee withdrawals
+- `contract-pause-status-changed`: Pause status changes
+- `intellectual-property-emergency-suspended`: Emergency suspensions
+
+## Error Codes
+
+| Code | Constant | Description |
+|------|----------|-------------|
+| 100 | ERR-UNAUTHORIZED-ACCESS | Caller lacks required permissions |
+| 101 | ERR-INTELLECTUAL-PROPERTY-NOT-FOUND | IP ID does not exist |
+| 102 | ERR-INTELLECTUAL-PROPERTY-ALREADY-EXISTS | Duplicate registration attempt |
+| 103 | ERR-INVALID-INPUT-PARAMETERS | Invalid function parameters |
+| 104 | ERR-INSUFFICIENT-PAYMENT-AMOUNT | Payment below required amount |
+| 105 | ERR-INTELLECTUAL-PROPERTY-EXPIRED | IP has expired |
+| 106 | ERR-INVALID-LICENSE-TERMS | Invalid licensing parameters |
+| 107 | ERR-PAYMENT-TRANSFER-FAILED | STX transfer failed |
+| 108 | ERR-INTELLECTUAL-PROPERTY-SUSPENDED | IP is suspended |
+| 109 | ERR-DUPLICATE-REGISTRATION-ATTEMPT | Content hash already registered |
+
+## Usage Examples
+
+### Register a Patent
+```clarity
+(contract-call? .ip-registry register-new-intellectual-property
+  u1  ;; patent type
+  "Revolutionary Widget Design"
+  "A novel approach to widget manufacturing with improved efficiency"
+  0x1234567890abcdef...)  ;; content hash
+```
+
+### Transfer Ownership
+```clarity
+(contract-call? .ip-registry transfer-intellectual-property-ownership
+  u1  ;; IP ID
+  'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)  ;; new owner
+```
+
+### Grant License
+```clarity
+(contract-call? .ip-registry grant-intellectual-property-license
+  u1     ;; IP ID
+  'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM  ;; licensee
+  u2     ;; non-exclusive license
+  u52560 ;; ~1 year duration
+  u500)  ;; 5% royalty rate
+```
+
+## Security Features
+
+### Access Control
+- Owner-only operations for transfers and licensing
+- Administrator-only functions for status updates and withdrawals
+- Contract pause functionality for emergency situations
+
+### Data Integrity
+- Unique content hash verification prevents duplicate registrations
+- Complete ownership and license history tracking
+- Immutable registration timestamps and block heights
+
+### Financial Security
+- Automated fee collection and balance tracking
+- Secure STX transfer mechanisms
+- Protected withdrawal functions
